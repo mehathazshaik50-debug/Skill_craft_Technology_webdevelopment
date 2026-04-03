@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>To-Do App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg,#1e1e2f,#3a3a5f);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+    color:white;
+}
+
+.container{
+    background:#2c2c54;
+    padding:20px;
+    border-radius:15px;
+    width:350px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+
+h2{
+    text-align:center;
+}
+
+input, button{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    border:none;
+    border-radius:8px;
+}
+
+input{
+    background:#40407a;
+    color:white;
+}
+
+button{
+    background:#34ace0;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#227093;
+}
+
+.task{
+    background:#40407a;
+    padding:10px;
+    margin-top:10px;
+    border-radius:8px;
+    display:flex;
+    flex-direction:column;
+}
+
+.completed{
+    text-decoration: line-through;
+    opacity:0.6;
+}
+
+.actions{
+    margin-top:5px;
+}
+
+.actions button{
+    width:auto;
+    margin-right:5px;
+    padding:5px 8px;
+    font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>To-Do App</h2>
+
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <input type="datetime-local" id="taskTime">
+
+    <button onclick="addTask()">Add Task</button>
+
+    <div id="taskList"></div>
+</div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks(){
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks(){
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    tasks.forEach((task, index)=>{
+        let div = document.createElement("div");
+        div.className = "task";
+
+        if(task.completed) div.classList.add("completed");
+
+        div.innerHTML = `
+            <strong>${task.text}</strong>
+            <small>${task.time || ""}</small>
+
+            <div class="actions">
+                <button onclick="toggleComplete(${index})">✔</button>
+                <button onclick="editTask(${index})">✏</button>
+                <button onclick="deleteTask(${index})">❌</button>
+            </div>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+function addTask(){
+    const text = document.getElementById("taskInput").value;
+    const time = document.getElementById("taskTime").value;
+
+    if(text === ""){
+        alert("Enter task!");
+        return;
+    }
+
+    tasks.push({ text, time, completed:false });
+
+    document.getElementById("taskInput").value = "";
+    document.getElementById("taskTime").value = "";
+
+    saveTasks();
+    renderTasks();
+}
+
+function toggleComplete(index){
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks();
+    renderTasks();
+}
+
+function deleteTask(index){
+    tasks.splice(index,1);
+    saveTasks();
+    renderTasks();
+}
+
+function editTask(index){
+    let newText = prompt("Edit task:", tasks[index].text);
+    if(newText !== null){
+        tasks[index].text = newText;
+        saveTasks();
+        renderTasks();
+    }
+}
+
+renderTasks();
+
+</script>
+
+</body>
+</html>
